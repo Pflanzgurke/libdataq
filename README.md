@@ -1,6 +1,9 @@
+libdataq
+========
 
+A library to interface with [Dataq](http://www.dataq.com/) data loggers over USB. 
 
-Tested with a Raspberry 2
+Tested with a Raspberry 2 and a Dataq 149.
 
 1. changed or add the following to /boot/config.txt
 
