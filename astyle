@@ -1,0 +1,8 @@
+--style=linux
+--indent=tab
+--break-blocks
+--pad-oper
+--pad-header
+--align-pointer=name
+--align-reference=name
+--add-brackets
