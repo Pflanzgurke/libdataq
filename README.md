@@ -1,6 +1,9 @@
 libdataq
 ========
 
+<i>Please note: this lib is work in progress and incomplete! It is not a product of
+DATAQ nor is it in any way endorsed by or affiliated with DATAQ.</i>
+
 A library to interface with [DATAQ](http://www.dataq.com/) usb data loggers implementing
 the [DATAQ protocol](http://www.dataq.com/resources/pdfs/misc/di-149-protocol.pdf).  
 
