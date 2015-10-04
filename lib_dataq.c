@@ -28,7 +28,7 @@ int dataq_open_dev(char *dev_name, bool block)
 	fd = open(dev_name, O_RDWR | O_NOCTTY | O_NDELAY);
 
 	if (fd != -1) {
-		__dataq_init(fd);
+		dataq_init(fd, DATAQ_MODE_ASC);
 
 		if (block) {
 			fcntl(fd, F_SETFL, 0);
@@ -80,17 +80,37 @@ int __dataq_send_command(int fd, char *cmd, char *result, unsigned int size)
 
 }
 
-int __dataq_init(int fd)
+int dataq_init(int fd, const int mode)
 {
 	if (fd < 0) {
 		return -1;
 	}
 
-	int size = strlen(DATAQ_CMD_ASC);
-	char data[size];
+	int size = 0;
+	char *data = NULL;
+
+	switch (mode) {
+	case DATAQ_MODE_ASC:
+		size = strlen(DATAQ_CMD_ASC);
+		data = malloc(sizeof(char) * size);
+		break;
+
+	case DATAQ_MODE_BIN:
+		size = strlen(DATAQ_CMD_BIN);
+		data = malloc(sizeof(char) * size);
+		break;
+
+	case DATAQ_MODE_FLOAT:
+		size = strlen(DATAQ_CMD_FLOAT);
+		data = malloc(sizeof(char) * size);
+		break;
+
+	default:
+		return -1;
+	}
 
 	//potential TODO: look at the returned string
-	return (__dataq_send_command(fd, DATAQ_CMD_ASC, data, size));
+	return (__dataq_send_command(fd, data, data, size));
 }
 
 int dataq_model(int fd, char *model_name, unsigned int size)

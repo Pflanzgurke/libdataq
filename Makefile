@@ -4,3 +4,8 @@ all: lib_dataq.o
 lib_dataq.o: lib_dataq.h lib_dataq.c
 	gcc -o lib_dataq.o -c lib_dataq.c
 
+style:
+	astyle --options=./astyle *.h *.c
+
+clean:
+	rm *.o example *.orig
