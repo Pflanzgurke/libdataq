@@ -109,9 +109,28 @@ int dataq_init(int fd, const int mode)
 		return -1;
 	}
 
+	int res = -1;
 	//potential TODO: look at the returned string
-	return (__dataq_send_command(fd, data, data, size));
+	res = __dataq_send_command(fd, data, data, size);
+	free(data);
+
+	return res;
 }
+
+int dataq_reset_counter(int fd)
+{
+	if (fd < 0) {
+		return -1;
+	}
+
+	int size = strlen(DATAQ_CMD_RESET_COUNTER);
+	char data[size];
+
+	//potential TODO: look at the returned string
+	return (__dataq_send_command(fd, DATAQ_CMD_RESET_COUNTER, data, size));
+
+}
+
 
 int dataq_model(int fd, char *model_name, unsigned int size)
 {

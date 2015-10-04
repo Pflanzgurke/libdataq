@@ -18,6 +18,7 @@
 #define DATAQ_CMD_FLOAT "float\r"
 #define DATAQ_CMD_START "start\r"
 #define DATAQ_CMD_STOP "stop\r"
+#define DATAQ_CMD_RESET_COUNTER "reset 1\r"
 
 #define DATAQ_MODE_ASC 1
 #define DATAQ_MODE_BIN 2
@@ -29,9 +30,10 @@
 
 
 int __send_command(int fd, char *cmd, char *result, unsigned int size);
-int dataq_init(int fd, int mode);
 
 int dataq_open_dev(char *dev_name, bool block);
+int dataq_init(int fd, int mode);
+int dataq_reset_counter(int fd);
 
 int dataq_model(int fd, char *model_name, unsigned int size);
 int dataq_vendor(int fd, char *vendor_name, unsigned int size);
