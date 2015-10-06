@@ -10,5 +10,8 @@ style:
 check:
 	cppcheck *.c *.h
 
+doc:
+	doxygen doxygen.conf
+
 clean:
 	rm *.o example *.orig

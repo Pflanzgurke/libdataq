@@ -12,9 +12,13 @@ int main()
 	int fd = -1;
 	char data[DATA_BUFFER_SIZE];
 
+	dataq_conf conf;
+
+	dataq_init_config(*conf);
+
 	printf("Opening DATAQ data logger serial device\n");
 
-	fd = dataq_open_dev("/dev/ttyACM0", true);
+	fd = dataq_open_dev("/dev/ttyACM0", &conf);
 
 	if (fd == -1) {
 		perror("Unable to open device...exiting\n");

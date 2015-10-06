@@ -1,11 +1,12 @@
+/*! \file */
 #include <unistd.h>
 #include "lib_dataq.h"
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/select.h>
 
-/*
- * Opens the data logger device
+/*! Opens and initially configures the data logger device.
  *
  * must be given device name as input parameter
  * e.g. /dev/ttyACM0
@@ -16,10 +17,9 @@
  * open() returns on failure (-1)
  */
 
-int dataq_open_dev(char *dev_name, bool block)
+int dataq_open_dev(char *dev_name, dataq_conf *conf)
 {
-
-	if (dev_name == NULL) {
+	if (dev_name == NULL || conf == NULL) {
 		return -1;
 	}
 
@@ -28,45 +28,83 @@ int dataq_open_dev(char *dev_name, bool block)
 	fd = open(dev_name, O_RDWR | O_NOCTTY | O_NDELAY);
 
 	if (fd != -1) {
-		dataq_set_mode(fd, DATAQ_MODE_ASC);
-
-		if (block) {
-			fcntl(fd, F_SETFL, 0);
-		} else {
-			fcntl(fd, F_SETFL, FNDELAY);
-		}
+		fcntl(fd, F_SETFL, FNDELAY);
+		dataq_apply_config(fd, conf);
 	}
 
 	return fd;
 }
 
+int dataq_apply_config(int fd, dataq_conf *conf)
+{
+	int success = 0;
+
+	if (dataq_set_mode(fd, conf->mode, conf) > 0) {
+		++success;
+	}
+
+	if (dataq_set_rate(fd, conf->rate) > 0) {
+		++success;
+	}
+
+	return success;
+}
+
+/*! Initializes all members of the dataq_conf parameter to 0.
+ *
+ * Insd,nfsd.,nv sddsfkgj sdlvn sdkjfbsd.kjf sdkjfb sdkjfbvsdkfnv sdkjfbhs
+ * srgjkhsd.kjh s.dfklgh sdbjkfn dkbj:sdfbi.
+ *
+ * param conf the config to be initialized
+ */
+inline void dataq_init_config(dataq_conf *conf)
+{
+	memset(conf, 0, sizeof(dataq_conf));
+
+	//these are the default
+	conf->mode = DATAQ_MODE_ASC;
+}
+
 long __dataq_send_command(int fd, char *cmd, char *result, unsigned int size)
 {
-
 	if (fd < 0 || cmd == NULL || size <= 0) {
 		return -1;
 	}
 
-	long bytes = 0;
+	long res = 0;
 	int total_bytes = 0;
 
-	bytes = write(fd, cmd, strlen(cmd));
+	res = write(fd, cmd, strlen(cmd));
 
-	//TODO: need to handle the case where bytes != strlen(cmd), i.e. the
+	//TODO: need to handle the case where res != strlen(cmd), i.e. the
 	//full command has not been written
-	if (bytes < 0) {
-		return bytes;
+	if (res < 0) {
+		return res;
+	}
+
+	fd_set read_set;
+	struct timeval timeout;
+
+	memset(&timeout, 0, sizeof(timeout));
+	timeout.tv_sec = 3;
+
+	FD_ZERO(&read_set);
+	FD_SET(fd, &read_set);
+
+	res = select(fd + 1, &read_set, NULL, NULL, &timeout); 
+
+	if (res <= 0) {
+		return -1;
 	}
 
 	char *tmp_str = malloc(sizeof(char) * (unsigned long)size);
 
-	while ((bytes = read(fd, tmp_str + total_bytes, size - (unsigned int) total_bytes - 1)) > 0) {
-		total_bytes +=  bytes;
+	while ((res = read(fd, tmp_str + total_bytes, size - (unsigned int) total_bytes - 1)) > 0) {
+		total_bytes +=  res;
 
 		if (tmp_str[total_bytes - 1] == '\r' || tmp_str[total_bytes - 1] == '\n') {
 			break;
 		}
-
 	}
 
 	tmp_str[total_bytes] = '\0';
@@ -77,12 +115,11 @@ long __dataq_send_command(int fd, char *cmd, char *result, unsigned int size)
 	free(tmp_str);
 	//returns -1 on error
 	return total_bytes;
-
 }
 
-long dataq_set_mode(int fd, const int mode)
+long dataq_set_mode(int fd, const int mode, dataq_conf *conf)
 {
-	if (fd < 0) {
+	if (fd < 0 || conf == NULL) {
 		return -1;
 	}
 
@@ -110,8 +147,12 @@ long dataq_set_mode(int fd, const int mode)
 	}
 
 	long res = -1;
-	//potential TODO: look at the returned string
 	res = __dataq_send_command(fd, data, data, size);
+
+	if (res > 0) {
+		conf->mode = mode;
+	}	
+
 	free(data);
 
 	return res;
@@ -169,6 +210,15 @@ long dataq_serial_number(int fd, char *serial_number, unsigned int size)
 	return (__dataq_send_command(fd, DATAQ_CMD_SERIAL_NUM, serial_number, size));
 }
 
+int dataq_slist_add(int fd, char *input, unsigned int size)
+{
+	if(fd < 0 || input == NULL) {
+		return -1;
+	}
+
+	return 1;
+}
+
 long dataq_start(int fd)
 {
 	if (fd < 0) {
@@ -193,5 +243,15 @@ long dataq_stop(int fd)
 
 	//potential TODO: look at the returned string
 	return (__dataq_send_command(fd, DATAQ_CMD_STOP, data, size));
+}
+
+long dataq_set_rate(int fd, unsigned int rate)
+{
+
+	if (rate > DATAQ_MAX_RATE || rate < DATAQ_MIN_RATE || fd < 0) {
+		return -1;
+	}
+
+	return 1;
 }
 
