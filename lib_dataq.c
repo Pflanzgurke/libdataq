@@ -28,7 +28,7 @@ int dataq_open_dev(char *dev_name, bool block)
 	fd = open(dev_name, O_RDWR | O_NOCTTY | O_NDELAY);
 
 	if (fd != -1) {
-		dataq_init(fd, DATAQ_MODE_ASC);
+		dataq_set_mode(fd, DATAQ_MODE_ASC);
 
 		if (block) {
 			fcntl(fd, F_SETFL, 0);
@@ -40,17 +40,15 @@ int dataq_open_dev(char *dev_name, bool block)
 	return fd;
 }
 
-int __dataq_send_command(int fd, char *cmd, char *result, unsigned int size)
+long __dataq_send_command(int fd, char *cmd, char *result, unsigned int size)
 {
 
-	if (fd < 0 || cmd == NULL || size == 0) {
+	if (fd < 0 || cmd == NULL || size <= 0) {
 		return -1;
 	}
 
-	int bytes = 0;
+	long bytes = 0;
 	int total_bytes = 0;
-
-	char *tmp_str = malloc(sizeof(char) * size);
 
 	bytes = write(fd, cmd, strlen(cmd));
 
@@ -60,8 +58,10 @@ int __dataq_send_command(int fd, char *cmd, char *result, unsigned int size)
 		return bytes;
 	}
 
-	while ((bytes = read(fd, tmp_str + total_bytes, size - total_bytes - 1)) > 0) {
-		total_bytes += bytes;
+	char *tmp_str = malloc(sizeof(char) * (unsigned long)size);
+
+	while ((bytes = read(fd, tmp_str + total_bytes, size - (unsigned int) total_bytes - 1)) > 0) {
+		total_bytes +=  bytes;
 
 		if (tmp_str[total_bytes - 1] == '\r' || tmp_str[total_bytes - 1] == '\n') {
 			break;
@@ -80,13 +80,13 @@ int __dataq_send_command(int fd, char *cmd, char *result, unsigned int size)
 
 }
 
-int dataq_init(int fd, const int mode)
+long dataq_set_mode(int fd, const int mode)
 {
 	if (fd < 0) {
 		return -1;
 	}
 
-	int size = 0;
+	unsigned int size = 0;
 	char *data = NULL;
 
 	switch (mode) {
@@ -109,7 +109,7 @@ int dataq_init(int fd, const int mode)
 		return -1;
 	}
 
-	int res = -1;
+	long res = -1;
 	//potential TODO: look at the returned string
 	res = __dataq_send_command(fd, data, data, size);
 	free(data);
@@ -117,13 +117,13 @@ int dataq_init(int fd, const int mode)
 	return res;
 }
 
-int dataq_reset_counter(int fd)
+long dataq_reset_counter(int fd)
 {
 	if (fd < 0) {
 		return -1;
 	}
 
-	int size = strlen(DATAQ_CMD_RESET_COUNTER);
+	unsigned int size = strlen(DATAQ_CMD_RESET_COUNTER);
 	char data[size];
 
 	//potential TODO: look at the returned string
@@ -132,7 +132,7 @@ int dataq_reset_counter(int fd)
 }
 
 
-int dataq_model(int fd, char *model_name, unsigned int size)
+long dataq_model(int fd, char *model_name, unsigned int size)
 {
 	if (fd < 0 || model_name == NULL || size == 0) {
 		return - 1;
@@ -141,7 +141,7 @@ int dataq_model(int fd, char *model_name, unsigned int size)
 	return (__dataq_send_command(fd, DATAQ_CMD_MODEL, model_name, size));
 }
 
-int dataq_vendor(int fd, char *vendor_name, unsigned int size)
+long dataq_vendor(int fd, char *vendor_name, unsigned int size)
 {
 	if (fd < 0 || vendor_name == NULL || size == 0) {
 		return -1;
@@ -150,7 +150,7 @@ int dataq_vendor(int fd, char *vendor_name, unsigned int size)
 	return (__dataq_send_command(fd, DATAQ_CMD_VENDOR, vendor_name, size));
 }
 
-int dataq_firmware(int fd, char *firmware_version, unsigned int size)
+long dataq_firmware(int fd, char *firmware_version, unsigned int size)
 {
 	if (fd < 0 || firmware_version == NULL || size == 0) {
 		return -1;
@@ -160,7 +160,7 @@ int dataq_firmware(int fd, char *firmware_version, unsigned int size)
 	return (__dataq_send_command(fd, DATAQ_CMD_FIRMWARE, firmware_version, size));
 }
 
-int dataq_serial_number(int fd, char *serial_number, unsigned int size)
+long dataq_serial_number(int fd, char *serial_number, unsigned int size)
 {
 	if (fd < 0 || serial_number == NULL || size == 0) {
 		return -1;
@@ -169,26 +169,26 @@ int dataq_serial_number(int fd, char *serial_number, unsigned int size)
 	return (__dataq_send_command(fd, DATAQ_CMD_SERIAL_NUM, serial_number, size));
 }
 
-int dataq_start(int fd)
+long dataq_start(int fd)
 {
 	if (fd < 0) {
 		return -1;
 	}
 
-	int size = strlen(DATAQ_CMD_START);
+	unsigned int size = strlen(DATAQ_CMD_START);
 	char data[size];
 
 	//potential TODO: look at the returned string
 	return (__dataq_send_command(fd, DATAQ_CMD_START, data, size));
 }
 
-int dataq_stop(int fd)
+long dataq_stop(int fd)
 {
 	if (fd < 0) {
 		return -1;
 	}
 
-	int size = strlen(DATAQ_CMD_STOP);
+	unsigned int size = strlen(DATAQ_CMD_STOP);
 	char data[size];
 
 	//potential TODO: look at the returned string

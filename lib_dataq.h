@@ -28,20 +28,19 @@
 
 
 
-
-int __send_command(int fd, char *cmd, char *result, unsigned int size);
+long __dataq_send_command(int fd, char *cmd, char *result, unsigned int size);
 
 int dataq_open_dev(char *dev_name, bool block);
-int dataq_init(int fd, int mode);
-int dataq_reset_counter(int fd);
+long dataq_set_mode(int fd, int mode);
+long dataq_reset_counter(int fd);
 
-int dataq_model(int fd, char *model_name, unsigned int size);
-int dataq_vendor(int fd, char *vendor_name, unsigned int size);
-int dataq_firmware(int fd, char *firmware_version, unsigned int size);
-int dataq_serial_number(int fd, char *serial_number, unsigned int size);
+long dataq_model(int fd, char *model_name, unsigned int size);
+long dataq_vendor(int fd, char *vendor_name, unsigned int size);
+long dataq_firmware(int fd, char *firmware_version, unsigned int size);
+long dataq_serial_number(int fd, char *serial_number, unsigned int size);
 
-int dataq_start(int fd);
-int dataq_stop(int fd);
+long dataq_start(int fd);
+long dataq_stop(int fd);
 
 
 #endif

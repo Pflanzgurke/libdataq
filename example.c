@@ -6,7 +6,7 @@
 
 #define DATA_BUFFER_SIZE 255
 
-int main(int argc, char **argv)
+int main()
 {
 
 	int fd = -1;
