@@ -57,7 +57,7 @@ int dataq_apply_config(int fd, dataq_conf *conf)
  *
  * param conf the config to be initialized
  */
-inline void dataq_init_config(dataq_conf *conf)
+void dataq_init_config(dataq_conf *conf)
 {
 	memset(conf, 0, sizeof(dataq_conf));
 

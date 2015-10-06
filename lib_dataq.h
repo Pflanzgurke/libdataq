@@ -63,7 +63,7 @@ typedef struct {
 long __dataq_send_command(int fd, char *cmd, char *result, unsigned int size);
 
 /*! 
- * \fn inline void dataq_init_config(dataq_conf *conf)
+ * \fn void dataq_init_config(dataq_conf *conf)
  * \brief Initializes all members of the dataq_conf parameter to 0.
  *
  * Insd,nfsd.,nv sddsfkgj sdlvn sdkjfbsd.kjf sdkjfb sdkjfbvsdkfnv sdkjfbhs
@@ -71,7 +71,7 @@ long __dataq_send_command(int fd, char *cmd, char *result, unsigned int size);
  *
  * param conf the config to be initialized
  */
-inline void dataq_init_config(dataq_conf *conf);
+void dataq_init_config(dataq_conf *conf);
 
 int dataq_open_dev(char *dev_name, dataq_conf *conf);
 long dataq_set_mode(int fd, int mode, dataq_conf *conf);

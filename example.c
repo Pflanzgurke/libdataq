@@ -14,7 +14,7 @@ int main()
 
 	dataq_conf conf;
 
-	dataq_init_config(*conf);
+	dataq_init_config(&conf);
 
 	printf("Opening DATAQ data logger serial device\n");
 
