@@ -170,7 +170,7 @@ long dataq_set_rate(int fd, unsigned int rate, dataq_conf *conf)
 	char data[13]; //"srate" + " " + "10000" (max) + "\r" + "\0"
 	unsigned int size = 0;	
 
-	snprintf(data, 13, "%s %d", DATAQ_CMD_SCAN_LIST_PREFIX, rate);
+	snprintf(data, 13, "%s %d", DATAQ_CMD_SCAN_RATE_PREFIX, rate);
 	printf("%s\n", data);
 
 	res = __dataq_send_command(fd, data, data, size);
