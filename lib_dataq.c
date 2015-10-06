@@ -43,7 +43,7 @@ int dataq_apply_config(int fd, dataq_conf *conf)
 		++success;
 	}
 
-	if (dataq_set_rate(fd, conf->rate) > 0) {
+	if (dataq_set_rate(fd, conf->rate, conf) > 0) {
 		++success;
 	}
 
@@ -91,7 +91,7 @@ long __dataq_send_command(int fd, char *cmd, char *result, unsigned int size)
 	FD_ZERO(&read_set);
 	FD_SET(fd, &read_set);
 
-	res = select(fd + 1, &read_set, NULL, NULL, &timeout); 
+	res = select(fd + 1, &read_set, NULL, NULL, &timeout);
 
 	if (res <= 0) {
 		return -1;
@@ -151,12 +151,37 @@ long dataq_set_mode(int fd, const int mode, dataq_conf *conf)
 
 	if (res > 0) {
 		conf->mode = mode;
-	}	
+	}
 
 	free(data);
 
 	return res;
 }
+
+
+long dataq_set_rate(int fd, unsigned int rate, dataq_conf *conf)
+{
+
+	if (rate > DATAQ_MAX_RATE || rate < DATAQ_MIN_RATE || fd < 0) {
+		return -1;
+	}
+
+	long res = -1;
+	char data[13]; //"srate" + " " + "10000" (max) + "\r" + "\0"
+	unsigned int size = 0;	
+
+	snprintf(data, 13, "%s %d", DATAQ_CMD_SCAN_LIST_PREFIX, rate);
+	printf("%s\n", data);
+
+	res = __dataq_send_command(fd, data, data, size);
+
+	if (res > 0) {
+		conf->rate = rate;
+	}
+
+	return res;
+}
+
 
 long dataq_reset_counter(int fd)
 {
@@ -212,7 +237,7 @@ long dataq_serial_number(int fd, char *serial_number, unsigned int size)
 
 int dataq_slist_add(int fd, char *input, unsigned int size)
 {
-	if(fd < 0 || input == NULL) {
+	if (fd < 0 || input == NULL) {
 		return -1;
 	}
 
@@ -245,13 +270,5 @@ long dataq_stop(int fd)
 	return (__dataq_send_command(fd, DATAQ_CMD_STOP, data, size));
 }
 
-long dataq_set_rate(int fd, unsigned int rate)
-{
 
-	if (rate > DATAQ_MAX_RATE || rate < DATAQ_MIN_RATE || fd < 0) {
-		return -1;
-	}
-
-	return 1;
-}
 

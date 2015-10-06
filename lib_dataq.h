@@ -46,7 +46,7 @@
 
 
 
-/*! 
+/*!
  * \brief Data logger configuration struct.
  *
  * For some operations, it is necessary to remember the config of the device,
@@ -62,7 +62,7 @@ typedef struct {
 
 long __dataq_send_command(int fd, char *cmd, char *result, unsigned int size);
 
-/*! 
+/*!
  * \fn void dataq_init_config(dataq_conf *conf)
  * \brief Initializes all members of the dataq_conf parameter to 0.
  *
@@ -86,7 +86,7 @@ int dataq_slist_add(int fd, char *input, unsigned int size);
 //int dataq_slist_remove(char *input);
 
 //for a sampling rate between 12 and 10000 Hz (for all inputs)
-long dataq_set_rate(int fd, unsigned int rate);
+long dataq_set_rate(int fd, unsigned int rate, dataq_conf *conf);
 int dataq_apply_config(int fd, dataq_conf *conf);
 
 long dataq_start(int fd);
