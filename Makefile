@@ -1,4 +1,4 @@
-all: lib_dataq.o
+all: example.c lib_dataq.o
 	clang -Weverything -o example example.c lib_dataq.o
 
 lib_dataq.o: lib_dataq.h lib_dataq.c
